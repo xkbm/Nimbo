@@ -9,14 +9,6 @@ export const DANGEROUS_EXTENSIONS = new Set([
   'vhd', 'vhdx', 'vxd', 'wsc', 'wsf', 'wsh', 'xll',
 ]);
 
-export const ALLOWED_EXTENSIONS = new Set([
-  '3g2', '3gp', '7z', 'aac', 'ai', 'aiff', 'avif', 'avi', 'bmp', 'csv', 'doc', 'docx', 'eot',
-  'epub', 'flac', 'gif', 'gz', 'heic', 'heif', 'html', 'ico', 'jpeg', 'jpg', 'json', 'm4a', 'm4v',
-  'md', 'mkv', 'mov', 'mp3', 'mp4', 'mpeg', 'mpg', 'odp', 'ods', 'odt', 'ogg', 'otf', 'pdf', 'png',
-  'ppt', 'pptx', 'rar', 'rtf', 'svg', 'tar', 'tif', 'tiff', 'ts', 'txt', 'wav', 'webm', 'webp', 'woff',
-  'woff2', 'xls', 'xlsx', 'xml', 'yaml', 'yml', 'zip',
-]);
-
 export const EXTENSION_MIME_TYPES = {
   '3g2': 'video/3gpp2', '3gp': 'video/3gpp', '7z': 'application/x-7z-compressed', aac: 'audio/aac', ai: 'application/postscript',
   aiff: 'audio/aiff', avif: 'image/avif', avi: 'video/x-msvideo', bmp: 'image/bmp', csv: 'text/csv', doc: 'application/msword',
@@ -56,15 +48,8 @@ export function validateFileType(fileName, mimeType) {
   const mime = String(mimeType || 'application/octet-stream').toLowerCase().split(';')[0].trim();
   const canonicalMime = MIME_ALIASES.get(mime) || mime;
 
-  if (!extension || DANGEROUS_EXTENSIONS.has(extension)) {
+  if (extension && DANGEROUS_EXTENSIONS.has(extension)) {
     const error = new Error('This file extension is not allowed for uploads');
-    error.status = 415;
-    error.code = 'FILE_TYPE_NOT_ALLOWED';
-    throw error;
-  }
-
-  if (!ALLOWED_EXTENSIONS.has(extension)) {
-    const error = new Error('This file extension is not on the upload allowlist');
     error.status = 415;
     error.code = 'FILE_TYPE_NOT_ALLOWED';
     throw error;
