@@ -353,7 +353,7 @@ const profileLinks = [
 				<div class="hidden items-center gap-2 lg:flex">
 					<a href="https://github.com/xkbm/omnicloud" target="_blank" rel="noreferrer" class="grid size-16 place-items-center transition hover:scale-[1.05] focus:outline-none focus:ring-4 focus:ring-[#1a73e8]/20 rounded-full" aria-label="Nimbo on GitHub">
 						<img :src="logoUrl" alt="Nimbo logo" class="size-full object-contain drop-shadow-[0_2px_6px_rgba(59,130,246,0.35)]" />
-					</button>
+					</a>
 					<div class="text-[22px] font-medium text-[#5f6368] dark:text-slate-300">Nimbo</div>
 				</div>
 			</div>

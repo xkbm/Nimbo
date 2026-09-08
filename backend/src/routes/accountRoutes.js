@@ -25,7 +25,6 @@ import {
 } from '../services/yandexOAuthService.js';
 import {
 	connectS3Account,
-	connectPCloudAccount,
 } from '../services/externalAccountService.js';
 import { clearFilesForAccount } from '../services/fileService.js';
 
@@ -101,15 +100,6 @@ router.post('/accounts/mega/connect', async (req, res, next) => {
 router.post('/accounts/s3/connect', async (req, res, next) => {
 	try {
 		const data = await connectS3Account(req.user.id, req.body || {});
-		res.json({ data });
-	} catch (error) {
-		next(error);
-	}
-});
-
-router.post('/accounts/pcloud/connect', async (req, res, next) => {
-	try {
-		const data = await connectPCloudAccount(req.user.id, req.body || {});
 		res.json({ data });
 	} catch (error) {
 		next(error);

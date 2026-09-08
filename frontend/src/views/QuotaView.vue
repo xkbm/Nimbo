@@ -20,7 +20,6 @@ import {
 } from '@tabler/icons-vue';
 import DriveShell from '../components/DriveShell.vue';
 import MegaConnectModal from '../components/MegaConnectModal.vue';
-import PCloudConnectModal from '../components/PCloudConnectModal.vue';
 import S3ConnectModal from '../components/S3ConnectModal.vue';
 import TruncateMarquee from '../components/TruncateMarquee.vue';
 import { useAccountManagementStore } from '../stores/accountManagement';
@@ -41,7 +40,6 @@ const actionSuccess = ref('');
 const isSyncing = ref(false);
 const isConnectMenuOpen = ref(false);
 const isMegaModalOpen = ref(false);
-const isPCloudModalOpen = ref(false);
 const isS3ModalOpen = ref(false);
 
 const ALLOCATION_STRATEGIES = ['round_robin', 'weighted_round_robin', 'least_used', 'most_free', 'manual'];
@@ -130,13 +128,6 @@ const providerConnectOptions = computed(() => [
 		busyLabel: t('storage.connectingProvider', { provider: 'MEGA' }),
 		icon: providerIcon('mega'),
 		action: openMegaModal,
-	},
-	{
-		key: 'pcloud',
-		label: t('providers.pcloud'),
-		busyLabel: t('storage.connectingProvider', { provider: 'pCloud' }),
-		icon: providerIcon('pcloud'),
-		action: openPCloudModal,
 	},
 	{
 		key: 'yandex',
@@ -418,31 +409,6 @@ async function connectMega(payload) {
 	}
 }
 
-function openPCloudModal() {
-	isConnectMenuOpen.value = false;
-	actionError.value = '';
-	isPCloudModalOpen.value = true;
-}
-
-function closePCloudModal() {
-	if (connectingProvider.value === 'pcloud') return;
-	isPCloudModalOpen.value = false;
-}
-
-async function connectPCloud(payload) {
-	connectingProvider.value = 'pcloud';
-	actionError.value = '';
-	try {
-		await api.connectPCloudAccount(payload);
-		await accountStore.loadAccounts();
-		isPCloudModalOpen.value = false;
-	} catch (error) {
-		actionError.value = error.message;
-	} finally {
-		connectingProvider.value = '';
-	}
-}
-
 async function connectYandex() {
 	connectingProvider.value = 'yandex';
 	isConnectMenuOpen.value = false;
@@ -680,6 +646,5 @@ onMounted(async () => {
 	</DriveShell>
 
 	<MegaConnectModal :open="isMegaModalOpen" :is-connecting="connectingProvider === 'mega'" @close="closeMegaModal" @connect="connectMega" />
-	<PCloudConnectModal :open="isPCloudModalOpen" :is-connecting="connectingProvider === 'pcloud'" @close="closePCloudModal" @connect="connectPCloud" />
 	<S3ConnectModal :open="isS3ModalOpen" :is-connecting="connectingProvider === 's3'" @close="closeS3Modal" @connect="connectS3" />
 </template>

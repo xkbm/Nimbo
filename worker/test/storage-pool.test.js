@@ -30,7 +30,6 @@ test('StorageBackend exposes conservative provider move capabilities', () => {
   assert.equal(backend({ provider: 'onedrive' }).canNativeMove(), true);
   assert.equal(backend({ provider: 'yandex' }).canNativeMove(), true);
   assert.equal(backend({ provider: 's3' }).canNativeMove(), true);
-  assert.equal(backend({ provider: 'pcloud' }).canNativeMove(), false);
   assert.equal(backend({ provider: 'mega' }).canNativeMove(), false);
 });
 

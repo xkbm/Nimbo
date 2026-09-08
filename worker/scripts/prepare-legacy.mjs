@@ -17,7 +17,6 @@ const adapters = [
   'DropboxAdapter.js',
   'OneDriveAdapter.js',
   'YandexAdapter.js',
-  'PCloudAdapter.js',
   'S3Adapter.js',
   'MegaAdapter.js',
 ];
@@ -36,7 +35,6 @@ for (const file of adapters) {
 }
 
 await fs.writeFile(path.join(legacyOut, 'BaseCloudAdapter.js'), await read(path.join('adapters', 'BaseCloudAdapter.js')));
-await fs.writeFile(path.join(legacyOut, 'pcloudClient.js'), await read(path.join('utils', 'pcloudClient.js')));
 await fs.writeFile(path.join(legacyOut, 'mime.js'), await read(path.join('utils', 'mime.js')));
 
 await fs.writeFile(path.join(legacyOut, 'crypto.js'), `import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
@@ -92,7 +90,6 @@ await fs.writeFile(path.join(repoRoot, 'worker/src/providers/legacy.js'), `const
   dropbox: () => import('../../generated/adapters/DropboxAdapter.js'),
   onedrive: () => import('../../generated/adapters/OneDriveAdapter.js'),
   yandex: () => import('../../generated/adapters/YandexAdapter.js'),
-  pcloud: () => import('../../generated/adapters/PCloudAdapter.js'),
   s3: () => import('../../generated/adapters/S3Adapter.js'),
   mega: () => import('../../generated/adapters/MegaAdapter.js'),
 };

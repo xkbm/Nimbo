@@ -246,12 +246,6 @@ export const api = {
 			body: JSON.stringify(payload),
 		});
 	},
-	connectPCloudAccount(payload) {
-		return request('/accounts/pcloud/connect', {
-			method: 'POST',
-			body: JSON.stringify(payload),
-		});
-	},
 	getYandexConnectUrl() {
 		return request('/accounts/yandex/connect');
 	},

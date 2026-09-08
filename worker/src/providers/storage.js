@@ -1,6 +1,7 @@
 import { Readable } from 'node:stream';
 import { sql } from '../db.js';
 import { getLegacyAdapter } from './legacy.js';
+import { getNativeProvider, hasNativeProvider } from './native/index.js';
 import { googleDelete, googleDownload, googleRename, googleSetStar, googleCreateFolder, googleUpload, googleFindParent, syncGoogleAccount, googleRequest } from './google.js';
 import { googleMove } from './googleMove.js';
 import { googleReplaceFile } from './googleReplace.js';
@@ -12,6 +13,10 @@ export function nodeReadableFromWeb(stream) {
 
 export async function getStorageAdapter(env, account) {
   if (account.provider === 'google_drive') return { kind: 'google', account };
+  if (hasNativeProvider(account.provider)) {
+    const mod = await getNativeProvider(account.provider);
+    if (mod?.create) return { kind: 'native', adapter: mod.create(env, account), account };
+  }
   return { kind: 'legacy', adapter: await getLegacyAdapter(env, account), account };
 }
 

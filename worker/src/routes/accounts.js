@@ -1,4 +1,4 @@
-import { randomUUID, createHash } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import { Storage as MegaStorage } from 'megajs';
 import { S3Client, HeadBucketCommand } from '@aws-sdk/client-s3';
 import { requireUser, sql } from '../db.js';
@@ -22,7 +22,6 @@ function providerStatus(env, provider) {
     yandex: Boolean(env.YANDEX_CLIENT_ID && env.YANDEX_CLIENT_SECRET),
     mega: true,
     s3: true,
-    pcloud: true,
   };
   return { provider, configured: Boolean(configured[provider]) };
 }
@@ -56,7 +55,8 @@ function accountErrorResponse(c, error, fallback='Account operation failed', cod
   console.error('[accounts] request failed:', error);
   const requestedStatus = Number(error?.status);
   const status = [400,404,409].includes(requestedStatus) ? requestedStatus : 500;
-  return c.json({ error: fallback, code }, status);
+  const safeMessage = error?.clientSafe === true ? String(error.message || '') : '';
+  return c.json({ error: safeMessage || fallback, code: (safeMessage && error?.safeCode) || code, ...(safeMessage ? { safe: true } : {}) }, status);
 }
 
 async function saveOAuthState(env, userId, provider) {
@@ -224,36 +224,6 @@ async function connectMega(env, userId, { email, password, secondFactorCode }) {
   throw isMegaTemporaryError(lastError) ? new Error('MEGA is temporarily busy or unavailable. Please try again.') : normalizeMegaConnectError(lastError);
 }
 
-function sha1Hex(value) { return createHash('sha1').update(value).digest('hex'); }
-
-async function pcloudGet(host, method, params = {}) {
-  const url = new URL(`https://${host}/${method}`);
-  Object.entries(params).forEach(([key, value]) => { if (value !== undefined && value !== null) url.searchParams.set(key, String(value)); });
-  const response = await fetch(url);
-  const payload = await response.json().catch(() => null);
-  if (!payload) throw new Error('pCloud returned an invalid response');
-  if (payload.result !== 0) { const error = new Error(payload.error || `pCloud error ${payload.result}`); error.result = payload.result; throw error; }
-  return payload;
-}
-
-async function pcloudLogin(username, password) {
-  let lastError;
-  for (const host of ['api.pcloud.com', 'eapi.pcloud.com']) {
-    try {
-      const { digest } = await pcloudGet(host, 'getdigest');
-      const usernameHash = sha1Hex(String(username).toLowerCase());
-      const passwordDigest = sha1Hex(password + usernameHash + digest);
-      const auth = await pcloudGet(host, 'login', { getauth: 1, logout: 0, username, digest, passworddigest: passwordDigest });
-      if (!auth.auth) throw new Error('pCloud login did not return an auth token');
-      return { host, auth: auth.auth, email: auth.email || username, totalSpace: Number(auth.quota || 0), usedSpace: Number(auth.usedquota || 0) };
-    } catch (error) {
-      lastError = error;
-      if (error.result && ![2321, 2330, 4000].includes(error.result) && error.result === 2000) break;
-    }
-  }
-  throw lastError || new Error('Unable to log in to pCloud');
-}
-
 async function connectS3(env, userId, body) {
   const { accessKeyId, secretAccessKey, bucket, region: regionInput, endpoint, label, totalSpace, forcePathStyle } = body || {};
   if (!accessKeyId || !secretAccessKey || !bucket) throw new Error('accessKeyId, secretAccessKey, and bucket are required');
@@ -274,15 +244,6 @@ async function connectS3(env, userId, body) {
   return { account, profile: { email, provider: 's3' } };
 }
 
-async function connectPCloud(env, userId, body) {
-  const { username, password } = body || {};
-  if (!username || !password) throw new Error('pCloud username (email) and password are required');
-  const login = await pcloudLogin(username, password);
-  const account = await upsertAccount(env, { userId, email: login.email || username, provider: 'pcloud', credentials: { provider: 'pcloud', username, password, host: login.host, auth: login.auth }, totalSpace: login.totalSpace, usedSpace: login.usedSpace });
-  try { await syncStorageAccount(env, userId, account); } catch (error) { console.warn('pCloud initial sync warning:', error?.message || error); }
-  return { account, profile: { email: login.email || username, totalSpace: login.totalSpace, usedSpace: login.usedSpace } };
-}
-
 export async function accountsRoutes(app) {
   app.use('/api/accounts/*', async (c, next) => {
     await next();
@@ -291,6 +252,7 @@ export async function accountsRoutes(app) {
     if (!contentType.includes('application/json')) return;
     const payload = await c.res.clone().json().catch(() => null);
     if (!payload?.error) return;
+    if (payload.safe === true) return;
     console.error('[accounts] sanitized error response:', { status: c.res.status, code: payload.code || 'ACCOUNT_OPERATION_FAILED' });
     return c.json({ error: 'Account operation failed', code: payload.code || 'ACCOUNT_OPERATION_FAILED' }, c.res.status);
   });
@@ -303,7 +265,7 @@ export async function accountsRoutes(app) {
     } catch (error) { return accountErrorResponse(c, error); }
   });
 
-  for (const provider of ['google', 'onedrive', 'dropbox', 'yandex', 'mega', 's3', 'pcloud']) {
+  for (const provider of ['google', 'onedrive', 'dropbox', 'yandex', 'mega', 's3']) {
     app.get(`/api/accounts/${provider}/status`, async (c) => {
       try { await requireUser(c); return c.json({ data: providerStatus(c.env, provider) }); }
       catch (error) { return accountErrorResponse(c, error, 'Unable to read account status', 'ACCOUNT_STATUS_FAILED'); }
@@ -367,11 +329,6 @@ export async function accountsRoutes(app) {
   app.post('/api/accounts/s3/connect', async (c) => {
     try { const user = await requireUser(c); const result = await connectS3(c.env, user.id, await c.req.json().catch(() => ({}))); return c.json({ data: result }); }
     catch (error) { return accountErrorResponse(c, error, 'Unable to connect S3', 'S3_CONNECTION_FAILED'); }
-  });
-
-  app.post('/api/accounts/pcloud/connect', async (c) => {
-    try { const user = await requireUser(c); const result = await connectPCloud(c.env, user.id, await c.req.json().catch(() => ({}))); return c.json({ data: result }); }
-    catch (error) { return accountErrorResponse(c, error, 'Unable to connect pCloud', 'PCLOUD_CONNECTION_FAILED'); }
   });
 
   app.delete('/api/accounts/:id', async (c) => {

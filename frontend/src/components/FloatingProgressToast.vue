@@ -30,7 +30,6 @@ const providerNames = {
 	yandex: 'Yandex',
 	mega: 'MEGA',
 	s3: 'S3',
-	pcloud: 'pCloud',
 };
 
 const props = defineProps({

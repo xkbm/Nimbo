@@ -2,7 +2,6 @@ import dropboxLogo from '../assets/dropbox.svg';
 import googleDriveLogo from '../assets/google-drive.svg';
 import megaLogo from '../assets/mega.svg';
 import oneDriveLogo from '../assets/microsoft-onedrive.svg';
-import pcloudLogo from '../assets/pcloud.svg';
 import s3Logo from '../assets/s3-storage.svg';
 import yandexLogo from '../assets/yandex-disk.svg';
 
@@ -11,7 +10,6 @@ const PROVIDER_META = {
 	onedrive: { key: 'onedrive', label: 'OneDrive', icon: oneDriveLogo },
 	dropbox: { key: 'dropbox', label: 'Dropbox', icon: dropboxLogo },
 	mega: { key: 'mega', label: 'MEGA', icon: megaLogo },
-	pcloud: { key: 'pcloud', label: 'pCloud', icon: pcloudLogo },
 	yandex: { key: 'yandex', label: 'Yandex Disk', icon: yandexLogo },
 	s3: { key: 's3', label: 'S3 Storage', icon: s3Logo },
 };

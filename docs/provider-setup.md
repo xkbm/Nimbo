@@ -40,7 +40,7 @@ YANDEX_CLIENT_SECRET=
 YANDEX_REDIRECT_URI=http://localhost:8787/api/accounts/yandex/callback
 ```
 
-MEGA, pCloud, and S3-compatible services do not use developer credentials in `.env`. MEGA and pCloud connect from the app UI with email/password; S3 services use per-bucket access keys entered in the form.
+MEGA and S3-compatible services do not use developer credentials in `.env`. MEGA connects from the app UI with email/password; S3 services use per-bucket access keys entered in the form.
 
 ## Google Drive
 
@@ -294,32 +294,12 @@ OmniCloud supports two connection styles:
 | Dropbox | Yes (Dropbox app) | App key + secret in `.env` | Connect → Dropbox (redirect login) |
 | **Yandex Disk** | **Yes (Yandex OAuth app)** | Client ID + secret in `.env` | Connect → Yandex Disk (redirect login) |
 | MEGA | No | Email + password (+ 2FA) | Connect → MEGA (in-app form) |
-| **pCloud** | **No** | Email + password | Connect → pCloud (in-app form) |
 | **S3 (R2, B2, Tebi, Storj, iDrive e2, MinIO, any S3 API)** | **No** | Access Key ID + Secret + bucket + endpoint (+ region) | Connect → S3 (in-app form) |
 
 The distinction is between **developer credentials** (you, the operator, register an app once and put the keys in `.env`) and **end-user credentials** (each user logs in with their own account):
 
-- **Developer credentials in `.env`:** Google Drive, OneDrive, Dropbox, and **Yandex Disk** use a redirect OAuth flow — register the app once, set the client id/secret in `.env`, and every user simply clicks Connect and authorizes.
-- **End-user credentials only (no `.env`):** **MEGA** and **pCloud** take the user's email/password directly. **S3 services** take per-bucket access keys — these are genuinely per-user/per-bucket, so they stay in the connect form, not `.env`.
-
-## pCloud
-
-pCloud does not require a developer OAuth application.
-
-### How pCloud connection works
-
-1. Start OmniCloud.
-2. Open the **Storage** page.
-3. Click **Connect** → **pCloud**.
-4. Enter your pCloud email and password.
-5. Submit.
-
-OmniCloud logs in using pCloud's digest auth, stores the resulting auth token (and your credentials, encrypted) so it can re-login automatically when the token expires. Both the US (`api.pcloud.com`) and EU (`eapi.pcloud.com`) regions are detected automatically.
-
-### Notes
-
-- No `PCLOUD_CLIENT_ID` / secret needed.
-- If you have 2FA enabled on pCloud, generate an app-specific password or disable 2FA for this login.
+- **OAuth apps required (`.env`):** **Google Drive**, **OneDrive**, **Dropbox**, and **Yandex** use redirect OAuth flows — one registered app per provider, credentials in `.env`, users just click Connect.
+- **End-user credentials only (no `.env`):** **MEGA** takes the user's email/password directly. **S3 services** take per-bucket access keys — these are genuinely per-user/per-bucket, so they stay in the connect form, not `.env`.
 
 ## Yandex Disk
 
