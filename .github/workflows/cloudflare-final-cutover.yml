@@ -25,15 +25,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.18.0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install Worker dependencies
-        run: npm install --prefix worker --ignore-scripts
-      - name: Install legacy runtime dependencies
-        run: npm install --ignore-scripts
+          cache: pnpm
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+      # The worker serves the SPA via [assets] (frontend/dist); the dry-run
+      # fails if the directory does not exist, so build it first.
+      - name: Build frontend (required by [assets] validation)
+        run: pnpm --filter frontend build
       - name: Prepare legacy adapters
-        run: npm --prefix worker run prepare:legacy
+        run: pnpm --filter worker prepare:legacy
       - name: Validate Worker bundle
         run: npx wrangler@4.123.0 deploy --dry-run
         working-directory: worker
