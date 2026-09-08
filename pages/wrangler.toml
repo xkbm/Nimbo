@@ -4,4 +4,4 @@ pages_build_output_dir = "../frontend/dist"
 
 [[services]]
 binding = "OMNICLOUD_API"
-service = "omnicloud-api-test"
+service = "nimbo"
