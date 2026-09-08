@@ -2,7 +2,6 @@ import { randomUUID } from 'crypto';
 import { env } from '../config/env.js';
 import { upsertCloudAccount, markAccountStatus } from './accountService.js';
 import { syncAccount } from './syncService.js';
-import { pcloudLogin } from '../utils/pcloudClient.js';
 import { S3Client, HeadBucketCommand } from '@aws-sdk/client-s3';
 
 const GIB = 1024 * 1024 * 1024;
@@ -94,41 +93,3 @@ export async function connectS3Account(userId, body = {}) {
 	return { account, profile: { email, provider: 's3' } };
 }
 
-export async function connectPCloudAccount(userId, body = {}) {
-	const { username, password } = body;
-	if (!username || !password) {
-		throw new Error('pCloud username (email) and password are required');
-	}
-
-	const login = await pcloudLogin({ username, password });
-
-	const account = upsertCloudAccount({
-		userId,
-		id: randomUUID(),
-		email: login.email || username,
-		provider: 'pcloud',
-		credentials: {
-			provider: 'pcloud',
-			username,
-			password,
-			host: login.host,
-			auth: login.auth,
-		},
-		total_space: login.totalSpace,
-		used_space: login.usedSpace,
-		status: 'active',
-	});
-
-	await syncAccount(userId, account).catch((error) => {
-		console.warn('pCloud initial sync warning:', error?.message || error);
-	});
-
-	return {
-		account,
-		profile: {
-			email: login.email || username,
-			totalSpace: login.totalSpace,
-			usedSpace: login.usedSpace,
-		},
-	};
-}

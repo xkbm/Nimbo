@@ -7,7 +7,7 @@ const MAX_ITERATIONS = 8;
 const MAX_CONTENT_LEN = 4000;
 const SMART_FUZZY_LIMIT = 6;
 
-export const AI_SYSTEM_PROMPT = `Eres el asistente de IA de OmniCloud, un filesystem virtual unificado que reúne archivos de todos los servicios de almacenamiento conectados del usuario (Google Drive, Dropbox, OneDrive, S3, Mega, pCloud, Yandex, etc.). Para ti no existen servicios individuales: solo carpetas y archivos dentro de una única ruta virtual como /Musica/2026/cancion.mp3.
+export const AI_SYSTEM_PROMPT = `Eres el asistente de IA de OmniCloud, un filesystem virtual unificado que reúne archivos de todos los servicios de almacenamiento conectados del usuario (Google Drive, Dropbox, OneDrive, S3, Mega, Yandex). Para ti no existen servicios individuales: solo carpetas y archivos dentro de una única ruta virtual como /Musica/2026/cancion.mp3.
 
 Reglas:
 1. Responde siempre en el idioma del usuario (por defecto, español). Usa un tono natural y claro.

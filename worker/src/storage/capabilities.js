@@ -17,7 +17,6 @@ export const PROVIDER_CAPABILITIES = Object.freeze({
   yandex: Object.freeze({ ...BASE, move: true }),
   s3: Object.freeze({ ...BASE, move: true, serverSideCopy: true }),
   mega: Object.freeze({ ...BASE }),
-  pcloud: Object.freeze({ ...BASE }),
 });
 
 export function getProviderCapabilities(provider) {

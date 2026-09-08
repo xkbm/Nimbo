@@ -201,7 +201,6 @@
     "dropbox": "Dropbox",
     "mega": "MEGA",
     "s3": "Almacenamiento S3",
-    "pcloud": "pCloud",
     "yandex": "Yandex Disk"
   },
   "mega": {
@@ -220,14 +219,6 @@
     "connect": "Conectar",
     "connecting": "Conectando...",
     "optional": "(opcional)",
-    "pcloud": {
-      "title": "Conectar pCloud",
-      "hint": "Usa tu correo y contraseña de pCloud.",
-      "username": "Correo electrónico",
-      "usernamePlaceholder": "correo{'@'}ejemplo.com",
-      "password": "Contraseña",
-      "passwordPlaceholder": "Contraseña de tu cuenta pCloud"
-    },
     "yandex": {
       "title": "Conectar Yandex Disk",
       "hint": "Serás redirigido a Yandex para autorizar el acceso."

@@ -6,7 +6,6 @@ export const PROVIDER_LABELS = Object.freeze({
   dropbox: 'Dropbox',
   yandex: 'Yandex Disk',
   mega: 'MEGA',
-  pcloud: 'pCloud',
   s3: 'Amazon S3',
 });
 
