@@ -39,7 +39,7 @@ jobs:
       - name: Build frontend (required by [assets] validation)
         run: pnpm --filter frontend build
       - name: Prepare legacy adapters
-        run: pnpm --filter worker prepare:legacy
+        run: pnpm --filter omnicloud-worker prepare:legacy
       - name: Validate Worker bundle
         run: npx wrangler@4.123.0 deploy --dry-run
         working-directory: worker
